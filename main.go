@@ -36,14 +36,27 @@ func createUser(db *sql.DB, name string, email string) {
 	fmt.Printf("Created user with ID %d\n", user.ID)
 }
 
+func getAllUsers(db *sql.DB) {
+	um := models.UsersModel{DB: db}
+	users, err := um.GetAll()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for _, user := range users {
+		fmt.Printf("%d: %s %s\n", user.ID, user.Name, user.Email)
+	}
+
+}
+
 func main() {
 	dsn := "postgres://docker:docker@localhost:5432/go_sql?sslmode=disable"
 
-	_, err := connectToDb(dsn)
+	db, err := connectToDb(dsn)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println("Connected to db")
+	getAllUsers(db)
 }
 
 func connectToDb(dsn string) (*sql.DB, error) {
