@@ -36,6 +36,7 @@ func createUser(db *sql.DB, name string, email string) {
 	fmt.Printf("Created user with ID %d\n", user.ID)
 }
 
+//lint:ignore U1000 example
 func getAllUsers(db *sql.DB) {
 	um := models.UsersModel{DB: db}
 	f := models.Filter{
@@ -52,6 +53,10 @@ func getAllUsers(db *sql.DB) {
 
 }
 
+type Application struct {
+	Models models.Models
+}
+
 func main() {
 	dsn := "postgres://docker:docker@localhost:5432/go_sql?sslmode=disable"
 
@@ -60,7 +65,15 @@ func main() {
 		log.Fatalln(err)
 	}
 	fmt.Println("Connected to db")
-	getAllUsers(db)
+
+	app := Application{
+		Models: models.NewModel(db),
+	}
+
+	fmt.Println("Starting application...")
+	if err = app.serve(); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func connectToDb(dsn string) (*sql.DB, error) {
