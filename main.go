@@ -38,7 +38,11 @@ func createUser(db *sql.DB, name string, email string) {
 
 func getAllUsers(db *sql.DB) {
 	um := models.UsersModel{DB: db}
-	users, err := um.GetAll()
+	f := models.Filter{
+		PageSize: 5,
+		Page:     3,
+	}
+	users, _, err := um.GetAll(f)
 	if err != nil {
 		log.Fatalln(err)
 	}
