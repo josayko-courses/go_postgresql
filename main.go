@@ -9,6 +9,43 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Application struct {
+	Models models.Models
+}
+
+func main() {
+	dsn := "postgres://docker:docker@localhost:5432/go_sql?sslmode=disable"
+
+	db, err := connectToDb(dsn)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("Connected to db")
+
+	app := Application{
+		Models: models.NewModel(db),
+	}
+
+	fmt.Println("Starting application...")
+	if err = app.Serve(); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func connectToDb(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
 //lint:ignore U1000 example
 func createUserTable(db *sql.DB) {
 	q := `CREATE TABLE IF NOT EXISTS users(
@@ -51,41 +88,4 @@ func getAllUsers(db *sql.DB) {
 		fmt.Printf("%d: %s %s\n", user.ID, user.Name, user.Email)
 	}
 
-}
-
-type Application struct {
-	Models models.Models
-}
-
-func main() {
-	dsn := "postgres://docker:docker@localhost:5432/go_sql?sslmode=disable"
-
-	db, err := connectToDb(dsn)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println("Connected to db")
-
-	app := Application{
-		Models: models.NewModel(db),
-	}
-
-	fmt.Println("Starting application...")
-	if err = app.serve(); err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func connectToDb(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
 }
